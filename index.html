@@ -192,6 +192,34 @@ footer {
   align-items: center;
 }
 </style>
+
+<style>
+@media (max-width: 768px) {
+  header { padding: 8px .75rem !important; height: auto !important; min-height: 48px !important; flex-wrap: wrap !important; }
+  .logo-text { font-size: 13px !important; }
+  .logo-sub, .last-update { display: none !important; }
+  .badge { font-size: 10px !important; padding: 2px 8px !important; }
+  .main { padding: .75rem !important; }
+  .nav-tabs { padding: 0 !important; }
+  .nav-tab { padding: 0 11px !important; font-size: 11px !important; height: 38px !important; }
+  .kpi-row { grid-template-columns: repeat(2, minmax(0,1fr)) !important; gap: 7px !important; }
+  .kpi-card { padding: .65rem .75rem !important; }
+  .kpi-label { font-size: 10px !important; }
+  .kpi-val { font-size: 16px !important; }
+  .kpi-sub { font-size: 10px !important; font-family: 'IBM Plex Sans', sans-serif !important; }
+  .section-hdr { flex-direction: column !important; gap: 2px !important; }
+  .chart-grid-2, .chart-grid-3 { grid-template-columns: 1fr !important; gap: 10px !important; }
+  .chart-card.span2 { grid-column: span 1 !important; }
+  .chart-card { padding: .9rem !important; }
+  .chart-card-title { font-size: 12px !important; }
+  .chart-card-sub { font-size: 10px !important; margin-bottom: .6rem !important; }
+  .insight-row { grid-template-columns: 1fr !important; gap: 8px !important; }
+  .insight-body { font-size: 11px !important; }
+  .data-table th { font-size: 9px !important; padding: 5px 6px !important; }
+  .data-table td { padding: 5px 6px !important; font-size: 9px !important; }
+  footer { flex-direction: column !important; gap: 4px !important; text-align: center !important; padding: .75rem !important; font-size: 10px !important; }
+}
+</style>
 </head>
 <body>
 
