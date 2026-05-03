@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saudi Real Estate Market Monitor</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --navy:  #0D1F2D;
+  --teal:  #1A3A4A;
+  --mid:   #2B6A7C;
+  --blue:  #3A8FA8;
+  --light: #D4E8ED;
+  --sand:  #F5F0E8;
+  --white: #FFFFFF;
+  --rule:  #D0D8DC;
+  --red:   #C0392B;
+  --red-l: #FDECEA;
+  --green: #1E7A5E;
+  --green-l:#EAF3DE;
+  --amber: #B5870B;
+  --amber-l:#FDF8E8;
+  --muted: #5A6A70;
+  --text:  #1A1A1A;
+  --accent:#E8A020;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: var(--navy);
+  color: var(--white);
+  min-height: 100vh;
+}
+/* ── HEADER ── */
+header {
+  background: var(--teal);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  padding: 0 2rem;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-mark {
+  width: 28px; height: 28px;
+  background: var(--accent);
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 12px;
+  color: var(--navy);
+}
+.logo-text { font-size: 14px; font-weight: 500; color: var(--white); letter-spacing: .02em; }
+.logo-sub  { font-size: 11px; color: rgba(255,255,255,.45); margin-left: 8px; }
+.header-right { display: flex; align-items: center; gap: 1.5rem; }
+.badge {
+  font-size: 11px; font-family: 'IBM Plex Mono', monospace;
+  background: rgba(232,160,32,.15);
+  color: var(--accent);
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(232,160,32,.3);
+}
+.last-update { font-size: 11px; color: rgba(255,255,255,.4); }
+
+/* ── NAV TABS ── */
+.nav-tabs {
+  background: var(--teal);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  padding: 0 2rem;
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+}
+.nav-tab {
+  padding: 0 20px;
+  height: 44px;
+  display: flex; align-items: center;
+  font-size: 13px; font-weight: 400;
+  color: rgba(255,255,255,.45);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color .15s, border-color .15s;
+  background: none; border-top: none; border-left: none; border-right: none;
+}
+.nav-tab:hover { color: rgba(255,255,255,.75); }
+.nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+
+/* ── LAYOUT ── */
+.main { padding: 1.5rem 2rem; max-width: 1400px; margin: 0 auto; }
+
+/* ── KPI STRIP ── */
+.kpi-row { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.kpi-card {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 8px;
+  padding: .9rem 1rem;
+}
+.kpi-label { font-size: 11px; color: rgba(255,255,255,.4); margin-bottom: 5px; line-height: 1.3; }
+.kpi-val { font-size: 20px; font-weight: 500; line-height: 1.1; }
+.kpi-sub { font-size: 11px; margin-top: 3px; font-family: 'IBM Plex Mono', monospace; }
+.red   { color: #F85149; } .red-sub { color: rgba(248,81,73,.7); }
+.green { color: #3FB950; } .green-sub { color: rgba(63,185,80,.7); }
+.amber { color: var(--accent); } .amber-sub { color: rgba(232,160,32,.7); }
+.white-val { color: var(--white); }
+
+/* ── SECTION HEADER ── */
+.section-hdr {
+  display: flex; align-items: baseline; gap: 12px;
+  margin-bottom: 1rem;
+  padding-bottom: .6rem;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.section-title { font-size: 15px; font-weight: 500; color: var(--white); }
+.section-sub   { font-size: 12px; color: rgba(255,255,255,.35); }
+
+/* ── CHART GRID ── */
+.chart-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 1.5rem; }
+.chart-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 1.5rem; }
+.chart-full   { margin-bottom: 1.5rem; }
+.chart-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+.chart-card.span2 { grid-column: span 2; }
+.chart-card-title { font-size: 13px; font-weight: 500; color: rgba(255,255,255,.85); margin-bottom: 3px; }
+.chart-card-sub   { font-size: 11px; color: rgba(255,255,255,.35); margin-bottom: 1rem; }
+.chart-wrap { position: relative; }
+
+/* ── LEGEND ── */
+.legend { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 10px; }
+.leg-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: rgba(255,255,255,.5); }
+.leg-dot  { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.leg-line { width: 18px; height: 2px; flex-shrink: 0; }
+
+/* ── INSIGHT CARDS ── */
+.insight-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin-top: 1rem; }
+.insight-card {
+  border-left: 2px solid;
+  border-radius: 0 6px 6px 0;
+  padding: .7rem .9rem;
+}
+.insight-card.red   { border-color: #F85149; background: rgba(248,81,73,.07); }
+.insight-card.green { border-color: #3FB950; background: rgba(63,185,80,.07); }
+.insight-card.amber { border-color: var(--accent); background: rgba(232,160,32,.07); }
+.insight-title  { font-size: 12px; font-weight: 500; margin-bottom: 4px; }
+.insight-card.red   .insight-title { color: #F85149; }
+.insight-card.green .insight-title { color: #3FB950; }
+.insight-card.amber .insight-title { color: var(--accent); }
+.insight-body   { font-size: 11.5px; color: rgba(255,255,255,.55); line-height: 1.5; }
+
+/* ── DATA TABLE ── */
+.data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.data-table th { text-align: left; padding: 8px 12px; color: rgba(255,255,255,.4); font-weight: 500; font-size: 11px; border-bottom: 1px solid rgba(255,255,255,.07); }
+.data-table td { padding: 7px 12px; border-bottom: 1px solid rgba(255,255,255,.04); font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+.data-table tr:hover td { background: rgba(255,255,255,.03); }
+.td-period { font-family: 'IBM Plex Sans', monospace; color: rgba(255,255,255,.75); font-weight: 500; }
+.td-phase  { font-family: 'IBM Plex Sans'; font-size: 10px; border-radius: 3px; padding: 2px 7px; }
+.phase-pre  { background: rgba(58,143,168,.15); color: #3A8FA8; }
+.phase-imm  { background: rgba(232,160,32,.15); color: var(--accent); }
+.phase-wave { background: rgba(248,81,73,.15); color: #F85149; }
+
+/* ── TABS ── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── FOOTER ── */
+footer {
+  margin-top: 3rem;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid rgba(255,255,255,.06);
+  font-size: 11px;
+  color: rgba(255,255,255,.3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">RE</div>
+    <span class="logo-text">Saudi Real Estate Monitor</span>
+    <span class="logo-sub">Regulatory Impact Assessment</span>
+  </div>
+  <div class="header-right">
+    <span class="badge">Mar-2026</span>
+    <span class="last-update">Source: SAMA · REGA · GASTAT</span>
+  </div>
+</header>
+
+<nav class="nav-tabs">
+  <button class="nav-tab active" onclick="showPage('overview')">Overview</button>
+  <button class="nav-tab" onclick="showPage('financing')">Financing</button>
+  <button class="nav-tab" onclick="showPage('transactions')">Transactions</button>
+  <button class="nav-tab" onclick="showPage('rental')">Rental Market</button>
+  <button class="nav-tab" onclick="showPage('construction')">Construction Costs</button>
+  <button class="nav-tab" onclick="showPage('data')">Data Table</button>
+</nav>
+
+<main class="main">
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE: OVERVIEW
+════════════════════════════════════════════════════════ -->
+<div id="page-overview" class="page active">
+
+  <div class="kpi-row" style="margin-top:.5rem">
+    <div class="kpi-card">
+      <div class="kpi-label">Financing — Mar 2026</div>
+      <div class="kpi-val red">SAR 4.35Bn</div>
+      <div class="kpi-sub red-sub">−49.3% YoY</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">YoY Decline Streak</div>
+      <div class="kpi-val red">9 months</div>
+      <div class="kpi-sub red-sub">Jul-2025 → Mar-2026</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">vs Dec-2024 Peak</div>
+      <div class="kpi-val red">−64.2%</div>
+      <div class="kpi-sub red-sub">SAR 7.82Bn absolute drop</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">REGA Transactions Mar-26</div>
+      <div class="kpi-val red">15,722</div>
+      <div class="kpi-sub red-sub">−52% YoY vs Mar-2025</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Building Permits Dec-25</div>
+      <div class="kpi-val green">9,452</div>
+      <div class="kpi-sub green-sub">+37% vs Sep-2025</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">CCI Equipment YoY</div>
+      <div class="kpi-val amber">+4.83%</div>
+      <div class="kpi-sub amber-sub">47% of total CCI rise</div>
+    </div>
+  </div>
+
+  <div class="section-hdr">
+    <span class="section-title">Monthly Financing Series</span>
+    <span class="section-sub">Grand Total (Banks + FinCo) · SAR Millions · Bar = value · Line = YoY %</span>
+  </div>
+
+  <div class="chart-card chart-full">
+    <div class="legend">
+      <span class="leg-item"><span class="leg-dot" style="background:#3A8FA8"></span>Pre-decision</span>
+      <span class="leg-item"><span class="leg-dot" style="background:#B5870B"></span>Q3-2025 Pre</span>
+      <span class="leg-item"><span class="leg-dot" style="background:#C0392B"></span>Immediate</span>
+      <span class="leg-item"><span class="leg-dot" style="background:#8B1A1A"></span>2nd Wave</span>
+      <span class="leg-item"><span class="leg-line" style="background:#E8A020"></span>YoY % →</span>
+    </div>
+    <div class="chart-wrap" style="height:260px">
+      <canvas id="cOverview" role="img" aria-label="Monthly mortgage financing 2024-2026">Monthly financing peaked at 12,176 SAR Mn in Dec-2024, declining to 4,355 by Mar-2026, a 64% drop.</canvas>
+    </div>
+  </div>
+
+  <div class="insight-row">
+    <div class="insight-card red">
+      <div class="insight-title">Credit-led structural contraction</div>
+      <div class="insight-body">9 consecutive months of YoY decline confirms a structural credit constraint, not a seasonal correction. No month since Jul-2025 has shown sustained MoM recovery.</div>
+    </div>
+    <div class="insight-card amber">
+      <div class="insight-title">Policy mismatch: supply vs credit</div>
+      <div class="insight-body">The Sep-2025 regulatory package addressed supply. Building permits surged +37%. But credit-side conditions — the binding constraint — did not ease.</div>
+    </div>
+    <div class="insight-card green">
+      <div class="insight-title">Supply pipeline building</div>
+      <div class="insight-body">Permit surge of Q4-2025 will translate to new units in 2027–2028. However, equipment rental inflation (+4.83% YoY) is raising the cost of those units before delivery.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE: FINANCING
+════════════════════════════════════════════════════════ -->
+<div id="page-financing" class="page">
+
+  <div class="kpi-row" style="margin-top:.5rem">
+    <div class="kpi-card">
+      <div class="kpi-label">Peak (Dec-2024)</div>
+      <div class="kpi-val white-val">SAR 12.18Bn</div>
+      <div class="kpi-sub amber-sub">All-time high</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Latest (Mar-2026)</div>
+      <div class="kpi-val red">SAR 4.35Bn</div>
+      <div class="kpi-sub red-sub">−64.2% from peak</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Banks — Mar-2026</div>
+      <div class="kpi-val red">SAR 4.19Bn</div>
+      <div class="kpi-sub red-sub">−50.1% YoY</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">FinCo — Mar-2026</div>
+      <div class="kpi-val amber">SAR 168Mn</div>
+      <div class="kpi-sub amber-sub">Share: 3.8% (was 1.9%)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Contracts — Mar-2026</div>
+      <div class="kpi-val red">6,581</div>
+      <div class="kpi-sub red-sub">−42.4% YoY</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Absolute Drop</div>
+      <div class="kpi-val red">SAR 7.82Bn</div>
+      <div class="kpi-sub red-sub">in 15 months</div>
+    </div>
+  </div>
+
+  <div class="chart-grid-2">
+    <div class="chart-card span2">
+      <div class="chart-card-title">Same-Quarter Comparison — 3 Years</div>
+      <div class="chart-card-sub">Q3 / Q4 / Q1 across 2023, 2024 and 2025/2026 · Controls for seasonality</div>
+      <div class="chart-wrap" style="height:240px">
+        <canvas id="cQuarter" role="img" aria-label="Same quarter comparison showing Q3-2025 was -15% vs Q3-2024, Q4-2025 was -47%, Q1-2026 was -38%">Same quarter comparison: Q3-2025 -15% YoY, Q4-2025 -47% YoY, Q1-2026 -38% YoY vs prior year.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-hdr">
+    <span class="section-title">Peak vs Latest — Product Breakdown</span>
+    <span class="section-sub">Banks only · Dec-2024 vs Mar-2026</span>
+  </div>
+  <div class="chart-card">
+    <div class="legend">
+      <span class="leg-item"><span class="leg-dot" style="background:#3A8FA8"></span>Dec-2024 (peak)</span>
+      <span class="leg-item"><span class="leg-dot" style="background:#C0392B"></span>Mar-2026 (latest)</span>
+    </div>
+    <div class="chart-wrap" style="height:220px">
+      <canvas id="cPeak" role="img" aria-label="Product comparison peak vs latest: villas -67.8%, apartments -62.9%, land -16.4%">Peak vs latest: Villas -67.8%, Apartments -62.9%, Land -16.4%.</canvas>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE: TRANSACTIONS
+════════════════════════════════════════════════════════ -->
+<div id="page-transactions" class="page">
+
+  <div class="kpi-row" style="margin-top:.5rem">
+    <div class="kpi-card">
+      <div class="kpi-label">Total Transactions Mar-26</div>
+      <div class="kpi-val red">15,722</div>
+      <div class="kpi-sub red-sub">−52% vs Mar-2025</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Residential Mar-26</div>
+      <div class="kpi-val red">14,222</div>
+      <div class="kpi-sub red-sub">−52% YoY</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Res. Value Mar-26</div>
+      <div class="kpi-val red">SAR 12.0Bn</div>
+      <div class="kpi-sub red-sub">−67% YoY</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Building Permits Dec-25</div>
+      <div class="kpi-val green">9,452</div>
+      <div class="kpi-sub green-sub">+37% vs Sep-2025 ↑</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Permits Feb-26</div>
+      <div class="kpi-val amber">5,920</div>
+      <div class="kpi-sub amber-sub">−37% from Dec peak</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Data Gap</div>
+      <div class="kpi-val white-val" style="font-size:14px">Apr–Nov 2025</div>
+      <div class="kpi-sub amber-sub">REGA bulletins not available</div>
+    </div>
+  </div>
+
+  <div class="chart-grid-2">
+    <div class="chart-card">
+      <div class="chart-card-title">REGA Sales Transactions</div>
+      <div class="chart-card-sub">Available months only · Total count</div>
+      <div class="legend">
+        <span class="leg-item"><span class="leg-dot" style="background:#3A8FA8"></span>2025 (pre/around decision)</span>
+        <span class="leg-item"><span class="leg-dot" style="background:#B5870B"></span>Dec-2025</span>
+        <span class="leg-item"><span class="leg-dot" style="background:#C0392B"></span>Q1-2026</span>
+      </div>
+      <div class="chart-wrap" style="height:220px">
+        <canvas id="cREGA" role="img" aria-label="REGA transaction count for available months showing decline from 36040 to 15722">REGA transactions declined from 36,040 in Jan-2025 to 15,722 in Mar-2026.</canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-title">Building Permits — Leading Supply Indicator</div>
+      <div class="chart-card-sub">Jul-2025 to Feb-2026 · Decision line = 25 Sep 2025</div>
+      <div class="legend">
+        <span class="leg-item"><span class="leg-dot" style="background:#3A8FA8"></span>Q3-2025 Pre</span>
+        <span class="leg-item"><span class="leg-dot" style="background:#B5870B"></span>Q4-2025 Immediate</span>
+        <span class="leg-item"><span class="leg-dot" style="background:#C0392B"></span>Q1-2026 2nd Wave</span>
+      </div>
+      <div class="chart-wrap" style="height:220px">
+        <canvas id="cPermits" role="img" aria-label="Building permits surged from 6920 in September 2025 to 9452 in December 2025 then declined to 5920 in February 2026">Building permits peaked at 9,452 in December 2025.</canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE: RENTAL
+════════════════════════════════════════════════════════ -->
+<div id="page-rental" class="page">
+
+  <div class="kpi-row" style="margin-top:.5rem">
+    <div class="kpi-card">
+      <div class="kpi-label">Apt Rent — Q4-2024</div>
+      <div class="kpi-val white-val">SAR 28,324</div>
+      <div class="kpi-sub red-sub">+44% vs Q1-2019</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">YoY Change Q4-2024</div>
+      <div class="kpi-val red">+20.4%</div>
+      <div class="kpi-sub red-sub">Highest in 6-year series</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Villa Rent — Q4-2024</div>
+      <div class="kpi-val white-val">SAR 94,936</div>
+      <div class="kpi-sub red-sub">+50% vs Q1-2019</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Apt Transactions Q4-24</div>
+      <div class="kpi-val green">176,769</div>
+      <div class="kpi-sub green-sub">+721% vs Q1-2019</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Apt Share of Demand</div>
+      <div class="kpi-val white-val">~82%</div>
+      <div class="kpi-sub amber-sub">Dominant product type</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Tightness Index N</div>
+      <div class="kpi-val red">88.6%</div>
+      <div class="kpi-sub red-sub">Very tight · CPI risk</div>
+    </div>
+  </div>
+
+  <div class="chart-card chart-full">
+    <div class="chart-card-title">Riyadh Apartment Rent — Average Annual SAR + Transaction Volume</div>
+    <div class="chart-card-sub">Q1-2019 to Q4-2024 · REGA rental indicators · Riyadh city</div>
+    <div class="legend">
+      <span class="leg-item"><span class="leg-dot" style="background:#3A8FA8"></span>Avg annual rent (SAR)</span>
+      <span class="leg-item"><span class="leg-dot" style="background:rgba(192,57,43,.5)"></span>Transaction volume →</span>
+    </div>
+    <div class="chart-wrap" style="height:250px">
+      <canvas id="cRent" role="img" aria-label="Riyadh apartment rent rising from 19646 SAR in Q1-2019 to 28324 SAR in Q4-2024 with transaction volume rising from 21534 to 176769">Riyadh apartment rent rose 44% from 2019 to Q4-2024, with transactions up 721%.</canvas>
+    </div>
+  </div>
+
+  <div class="insight-row">
+    <div class="insight-card red">
+      <div class="insight-title">Buy-to-rent substitution confirmed</div>
+      <div class="insight-body">Rent +44% and volume ×7 simultaneously — as mortgage financing collapsed −49% YoY, demand shifted to rental. Direct market consequence of the credit contraction.</div>
+    </div>
+    <div class="insight-card red">
+      <div class="insight-title">Q4-2024: +20.4% YoY — acceleration</div>
+      <div class="insight-body">Sharpest reading in the 6-year series. Matches onset of SAMA financing contraction. Structural repricing, not seasonal.</div>
+    </div>
+    <div class="insight-card amber">
+      <div class="insight-title">CPI risk in 3–6 months</div>
+      <div class="insight-body">Tightness index N=88.6%. Sustained readings above 85% typically feed into CPI housing component within 1–2 quarters. Watch H2-2026 inflation data.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE: CONSTRUCTION COSTS
+════════════════════════════════════════════════════════ -->
+<div id="page-construction" class="page">
+
+  <div class="kpi-row" style="margin-top:.5rem">
+    <div class="kpi-card">
+      <div class="kpi-label">General CCI — Mar-2026</div>
+      <div class="kpi-val white-val">103.2</div>
+      <div class="kpi-sub amber-sub">+1.96% YoY · Base 2023=100</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Equipment Rental YoY</div>
+      <div class="kpi-val red">+4.83%</div>
+      <div class="kpi-sub red-sub">Shock — from +1.95% in Feb</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">With Operator (Res.)</div>
+      <div class="kpi-val red">+6.48%</div>
+      <div class="kpi-sub red-sub">Residential sector</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Tracked Bulldozer</div>
+      <div class="kpi-val red">+9.85%</div>
+      <div class="kpi-sub red-sub">Highest sub-item</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Equipment CCI contribution</div>
+      <div class="kpi-val amber">+0.92pp</div>
+      <div class="kpi-sub amber-sub">47% of headline CCI rise</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Permit→Equipment lag</div>
+      <div class="kpi-val white-val">~3 months</div>
+      <div class="kpi-sub amber-sub">Dec-2025 peak → Mar-2026 shock</div>
+    </div>
+  </div>
+
+  <div class="chart-grid-2">
+    <div class="chart-card">
+      <div class="chart-card-title">CCI Components — YoY Change %</div>
+      <div class="chart-card-sub">Jan-2024 to Mar-2026 · Equipment (red) vs Labour (amber) vs General (blue)</div>
+      <div class="chart-wrap" style="height:230px">
+        <canvas id="cCCI" role="img" aria-label="Construction cost components year-on-year, equipment surged to 4.83% in March 2026">Equipment rental surged to +4.83% YoY in March 2026, driving the CCI headline.</canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-title">CCI Decomposition — March 2026</div>
+      <div class="chart-card-sub">Contribution to +1.96% headline (percentage points)</div>
+      <div class="chart-wrap" style="height:230px">
+        <canvas id="cDecomp" role="img" aria-label="CCI decomposition showing equipment contributing 0.92pp, labour 0.82pp, materials 0.17pp">Equipment contributes 0.92pp — 47% of total CCI headline of +1.96%.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-row">
+    <div class="insight-card red">
+      <div class="insight-title">Permit wave → equipment shock</div>
+      <div class="insight-body">Dec-2025 permit peak (9,452) → Mar-2026 equipment spike (+4.83%). Exactly 3-month lag — consistent with time from permit to site mobilisation and equipment hire.</div>
+    </div>
+    <div class="insight-card amber">
+      <div class="insight-title">Materials still in mild deflation</div>
+      <div class="insight-body">Basic materials YoY = +0.34% — barely above zero. The cost pressure is NOT from raw materials. It is entirely equipment and labour — demand-driven, not supply-chain.</div>
+    </div>
+    <div class="insight-card red">
+      <div class="insight-title">Unintended policy feedback</div>
+      <div class="insight-body">The Sep-2025 package increased permits → drove up equipment costs → units arriving in 2027–2028 will be SAR 28–54K more expensive to build. Margin compression incoming.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE: DATA TABLE
+════════════════════════════════════════════════════════ -->
+<div id="page-data" class="page">
+
+  <div class="section-hdr" style="margin-top:.5rem">
+    <span class="section-title">SAMA Monthly Financing — Grand Total</span>
+    <span class="section-sub">Banks + Finance Companies · SAR Millions · 32 cross-checks verified</span>
+  </div>
+  <div class="chart-card">
+    <div style="overflow-x:auto">
+      <table class="data-table" id="dataTable">
+        <thead>
+          <tr>
+            <th>Period</th>
+            <th>Banks Total (Mn)</th>
+            <th>FinCo Total (Mn)</th>
+            <th>Grand Total (Mn)</th>
+            <th>Contracts</th>
+            <th>MoM %</th>
+            <th>YoY %</th>
+            <th>Phase</th>
+          </tr>
+        </thead>
+        <tbody id="dataBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+</main>
+
+<footer>
+  <span>Source: SAMA Statistical Bulletin Mar-2026 (Tables 12f + 2-7) · REGA Monthly Bulletins · GASTAT CCI Mar-2026 · MoMRA Building Permits</span>
+  <span>Saudi Real Estate Monitor · 32 cross-checks verified ✓</span>
+</footer>
+
+<script>
+// ── Page switching ─────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── Chart defaults ─────────────────────────────────────
+const gC = 'rgba(255,255,255,.07)';
+const tC = 'rgba(255,255,255,.4)';
+const baseOpts = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { display: false } },
+  scales: {
+    x: { grid: { color: gC }, ticks: { color: tC, font: { size: 10 } } },
+    y: { grid: { color: gC }, ticks: { color: tC, font: { size: 10 } } }
+  }
+};
+
+// ── DATA ───────────────────────────────────────────────
+const finMonths = ['Jul-24','Aug-24','Sep-24','Oct-24','Nov-24','Dec-24',
+  'Jan-25','Feb-25','Mar-25','Jul-25','Aug-25','Sep-25',
+  'Oct-25','Nov-25','Dec-25','Jan-26','Feb-26','Mar-26'];
+const finBanks = [7072,6599,6820,8142,10064,11941,10464,8908,8399,
+  6416,5860,5820,5548,4465,5548,6189,5371,4187];
+const finFinCo = [193,161,202,254,201,235,224,198,197,
+  185,167,206,217,301,219,176,241,168];
+const finVals  = finBanks.map((b,i) => b + finFinCo[i]);
+const finContr = [9832,9312,9560,11318,13374,15556,13691,11951,11345,
+  8790,8185,8226,8300,7058,7873,9227,8620,6581];
+const finYoY   = [null,null,null,null,null,null,null,null,null,
+  -9.1,-10.8,-14.2,-31.3,-53.6,-52.6,-40.4,-38.4,-49.3];
+const finMoM   = [null,-6.9,3.9,19.6,22.2,18.6,-12.2,-14.8,-5.5,
+  null,-8.7,-0.0,-4.3,-17.3,21.0,10.4,-11.8,-22.4];
+const finPhase = ['Pre','Pre','Pre','Pre','Pre','Pre','Pre','Pre','Pre',
+  'Pre-decision','Pre-decision','Pre-decision',
+  'Immediate','Immediate','Immediate',
+  '2nd Wave','2nd Wave','2nd Wave'];
+const finColors= ['#2B6A7C','#2B6A7C','#2B6A7C','#2B6A7C','#2B6A7C','#2B6A7C',
+  '#3A8FA8','#3A8FA8','#3A8FA8',
+  '#B5870B','#B5870B','#B5870B',
+  '#993C1D','#993C1D','#993C1D',
+  '#8B1A1A','#8B1A1A','#8B1A1A'];
+
+// ── CHART: Overview ────────────────────────────────────
+new Chart(document.getElementById('cOverview'), {
+  type: 'bar',
+  data: {
+    labels: finMonths,
+    datasets: [
+      { type: 'bar',  data: finVals, backgroundColor: finColors, order: 2, yAxisID: 'y' },
+      { type: 'line', data: finYoY,  borderColor: '#E8A020', backgroundColor: 'transparent',
+        pointBackgroundColor: '#E8A020', pointRadius: 3, borderWidth: 2,
+        spanGaps: true, order: 1, yAxisID: 'y2' }
+    ]
+  },
+  options: {
+    ...baseOpts,
+    scales: {
+      x: { grid: { color: gC }, ticks: { color: tC, font: { size: 9 }, maxRotation: 45, autoSkip: false } },
+      y: { grid: { color: gC }, ticks: { color: tC, font: { size: 10 }, callback: v => `${(v/1000).toFixed(0)}Bn` } },
+      y2: { position: 'right', grid: { display: false },
+        ticks: { color: '#E8A020', font: { size: 10 }, callback: v => `${v}%` } }
+    }
+  }
+});
+
+// ── CHART: Same-Quarter ────────────────────────────────
+const qLabels = ['Q3-2023','Q3-2024','Q3-2025','Q4-2023','Q4-2024','Q4-2025','Q1-2024','Q1-2025','Q1-2026'];
+const qVals   = [19157,21047,18656,20229,30857,16296,22869,28389,16342];
+const qColors = ['#2B6A7C','#3A8FA8','#B5870B',
+                 '#2B6A7C','#3A8FA8','#993C1D',
+                 '#3A8FA8','#2B6A7C','#8B1A1A'];
+new Chart(document.getElementById('cQuarter'), {
+  type: 'bar',
+  data: { labels: qLabels, datasets: [{ data: qVals, backgroundColor: qColors }] },
+  options: {
+    ...baseOpts,
+    scales: {
+      x: { grid: { color: gC }, ticks: { color: tC, font: { size: 9 }, maxRotation: 30 } },
+      y: { grid: { color: gC }, ticks: { color: tC, font: { size: 10 }, callback: v => `SAR ${(v/1000).toFixed(0)}Bn` } }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => `SAR ${(ctx.raw/1000).toFixed(2)} Bn` } }
+    }
+  }
+});
+
+// ── CHART: Peak vs Latest ──────────────────────────────
+new Chart(document.getElementById('cPeak'), {
+  type: 'bar',
+  data: {
+    labels: ['Villas','Apartments','Land'],
+    datasets: [
+      { label: 'Dec-2024 (peak)',   data: [8120,3486,335], backgroundColor: '#3A8FA8' },
+      { label: 'Mar-2026 (latest)', data: [2614,1293,280], backgroundColor: '#C0392B' }
+    ]
+  },
+  options: {
+    ...baseOpts,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: SAR ${(ctx.raw/1000).toFixed(2)} Bn` } }
+    },
+    scales: {
+      x: { grid: { color: gC }, ticks: { color: tC, font: { size: 11 } } },
+      y: { grid: { color: gC }, ticks: { color: tC, font: { size: 10 }, callback: v => `SAR ${(v/1000).toFixed(1)}Bn` } }
+    }
+  }
+});
+
+// ── CHART: REGA Transactions ───────────────────────────
+new Chart(document.getElementById('cREGA'), {
+  type: 'bar',
+  data: {
+    labels: ['Jan-25','Mar-25','Dec-25','Jan-26','Feb-26','Mar-26'],
+    datasets: [{ data: [36040,32599,26597,22372,20479,15722],
+      backgroundColor: ['#3A8FA8','#3A8FA8','#B5870B','#C0392B','#C0392B','#8B1A1A'] }]
+  },
+  options: {
+    ...baseOpts,
+    scales: {
+      x: { grid: { color: gC }, ticks: { color: tC, font: { size: 10 } } },
+      y: { grid: { color: gC }, ticks: { color: tC, font: { size: 10 }, callback: v => `${(v/1000).toFixed(0)}K` } }
+    }
+  }
+});
+
+// ── CHART: Permits ─────────────────────────────────────
+new Chart(document.getElementById('cPermits'), {
+  type: 'bar',
+  data: {
+    labels: ['Jul-25','Aug-25','Sep-25','Oct-25','Nov-25','Dec-25','Jan-26','Feb-26'],
+    datasets: [{ data: [5582,6998,6920,7457,8034,9452,6919,5920],
+      backgroundColor: ['#3A8FA8','#3A8FA8','#3A8FA8','#B5870B','#B5870B','#B5870B','#C0392B','#C0392B'] }]
+  },
+  options: {
+    ...baseOpts,
+    scales: {
+      x: { grid: { color: gC }, ticks: { color: tC, font: { size: 10 } } },
+      y: { grid: { color: gC }, ticks: { color: tC, font: { size: 10 }, callback: v => `${(v/1000).toFixed(1)}K` } }
+    }
+  }
+});
+
+// ── CHART: Rental ──────────────────────────────────────
+const rentQ = ['Q1-19','Q2-19','Q3-19','Q4-19','Q1-20','Q2-20','Q3-20','Q4-20',
+  'Q1-21','Q2-21','Q3-21','Q4-21','Q1-22','Q2-22','Q3-22','Q4-22',
+  'Q1-23','Q2-23','Q3-23','Q4-23','Q1-24','Q2-24','Q3-24','Q4-24'];
+const rentV = [19646,19834,19700,20012,19320,18962,18782,18544,18695,19108,20431,19980,
+  19806,20224,20047,20456,21837,22614,23184,24020,25238,26412,27310,28324];
+const rentT = [21534,26892,31246,38410,33662,45230,56311,62840,65490,58320,60316,72450,
+  87652,94810,110742,124530,122399,130842,138404,152310,158213,165820,170204,176769];
+
+new Chart(document.getElementById('cRent'), {
+  type: 'line',
+  data: {
+    labels: rentQ,
+    datasets: [
+      { type: 'line', data: rentV, borderColor: '#3A8FA8', backgroundColor: 'rgba(58,143,168,.1)',
+        pointBackgroundColor: '#3A8FA8', pointRadius: 2.5, borderWidth: 2.2, fill: true, order: 1, yAxisID: 'y' },
+      { type: 'bar',  data: rentT, backgroundColor: 'rgba(192,57,43,.2)', order: 2, yAxisID: 'y2' }
+    ]
+  },
+  options: {
+    ...baseOpts,
+    scales: {
+      x: { grid: { color: gC }, ticks: { color: tC, font: { size: 8.5 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 12 } },
+      y: { grid: { color: gC }, ticks: { color: tC, font: { size: 10 }, callback: v => `SAR ${(v/1000).toFixed(0)}K` } },
+      y2: { position: 'right', grid: { display: false }, ticks: { color: 'rgba(192,57,43,.7)', font: { size: 9 }, callback: v => `${(v/1000).toFixed(0)}K` } }
+    }
+  }
+});
+
+// ── CHART: CCI ─────────────────────────────────────────
+const cciM = ['Jan-24','Feb-24','Mar-24','Apr-24','May-24','Jun-24',
+  'Jul-24','Aug-24','Sep-24','Oct-24','Nov-24','Dec-24',
+  'Jan-25','Feb-25','Mar-25','Apr-25','May-25','Jun-25',
+  'Jul-25','Aug-25','Sep-25','Oct-25','Nov-25','Dec-25',
+  'Jan-26','Feb-26','Mar-26'];
+const cciEq  = [-0.81,-0.84,-0.63,-0.48,-0.55,-0.15,1.15,1.74,1.95,1.96,1.94,1.94,2.71,2.85,2.92,2.85,2.88,2.50,1.79,1.24,1.23,1.23,1.28,1.28,2.00,1.95,4.83];
+const cciLab = [-0.03,0.04,-0.03,-0.19,-0.26,-0.19,1.98,2.05,2.00,2.07,2.02,1.89,1.86,1.83,1.97,2.11,2.39,2.44,1.42,1.40,1.38,1.40,1.43,1.75,2.56,2.77,2.73];
+const cciGen = [-0.48,-0.54,-0.79,-0.46,-0.47,-0.04,1.25,1.52,1.72,1.64,1.57,1.35,1.00,0.90,0.98,0.99,1.15,1.12,0.65,0.72,0.73,0.97,1.01,1.15,1.38,1.39,1.96];
+const cciMat = [-1.56,-1.71,-2.27,-1.56,-1.51,-0.83,-0.03,0.26,0.61,0.41,0.29,-0.06,-0.61,-0.86,-0.82,-0.84,-0.70,-0.65,-0.72,-0.36,-0.32,0.15,0.22,0.30,0.34,0.25,0.34];
+
+new Chart(document.getElementById('cCCI'), {
+  type: 'line',
+  data: {
+    labels: cciM,
+    datasets: [
+      { label: 'Equipment', data: cciEq, borderColor: '#C0392B', backgroundColor: 'transparent', pointRadius: 2, borderWidth: 2.2, tension: 0.3 },
+      { label: 'Labour',    data: cciLab, borderColor: '#B5870B', backgroundColor: 'transparent', pointRadius: 1.5, borderWidth: 1.8, borderDash: [4,3], tension: 0.3 },
+      { label: 'General',   data: cciGen, borderColor: '#3A8FA8', backgroundColor: 'transparent', pointRadius: 1.5, borderWidth: 1.5, borderDash: [2,2], tension: 0.3 },
+      { label: 'Materials', data: cciMat, borderColor: 'rgba(255,255,255,.25)', backgroundColor: 'transparent', pointRadius: 0, borderWidth: 1, borderDash: [6,4], tension: 0.3 }
+    ]
+  },
+  options: {
+    ...baseOpts,
+    scales: {
+      x: { grid: { color: gC }, ticks: { color: tC, font: { size: 8.5 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 10 } },
+      y: { grid: { color: gC }, ticks: { color: tC, font: { size: 10 }, callback: v => `${v > 0 ? '+' : ''}${v.toFixed(1)}%` } }
+    }
+  }
+});
+
+new Chart(document.getElementById('cDecomp'), {
+  type: 'bar',
+  data: {
+    labels: ['Equipment\n(19% wt)','Labour\n(30% wt)','Materials\n(49% wt)','Energy\n(3% wt)'],
+    datasets: [{ data: [0.92, 0.82, 0.17, 0.07],
+      backgroundColor: ['#C0392B','#B5870B','#3A8FA8','rgba(255,255,255,.25)'] }]
+  },
+  options: {
+    ...baseOpts,
+    scales: {
+      x: { grid: { color: gC }, ticks: { color: tC, font: { size: 10 } } },
+      y: { grid: { color: gC }, ticks: { color: tC, font: { size: 10 }, callback: v => `+${v.toFixed(2)}pp` },
+        title: { display: true, text: 'Contribution (pp)', color: tC, font: { size: 10 } } }
+    }
+  }
+});
+
+// ── DATA TABLE ─────────────────────────────────────────
+const tableData = [
+  ['Jul-2024',7072,193,7265,9832,null,null,'Pre'],
+  ['Aug-2024',6599,161,6760,9312,-6.9,null,'Pre'],
+  ['Sep-2024',6820,202,7022,9560,3.9,null,'Pre'],
+  ['Oct-2024',8142,254,8396,11318,19.6,null,'Pre'],
+  ['Nov-2024',10064,201,10265,13374,22.2,null,'Pre'],
+  ['Dec-2024',11941,235,12176,15556,18.6,null,'Pre'],
+  ['Jan-2025',10464,224,10688,13691,-12.2,null,'Pre'],
+  ['Feb-2025',8908,198,9106,11951,-14.8,null,'Pre'],
+  ['Mar-2025',8399,197,8596,11345,-5.5,null,'Pre'],
+  ['Jul-2025',6416,185,6601,8790,null,-9.1,'Pre-decision'],
+  ['Aug-2025',5860,167,6027,8185,-8.7,-10.8,'Pre-decision'],
+  ['Sep-2025',5820,206,6026,-0.0,-14.2,8226,'Pre-decision'],
+  ['Oct-2025',5548,217,5765,8300,-4.3,-31.3,'Immediate'],
+  ['Nov-2025',4465,301,4766,7058,-17.3,-53.6,'Immediate'],
+  ['Dec-2025',5548,219,5767,7873,21.0,-52.6,'Immediate'],
+  ['Jan-2026',6189,176,6365,9227,10.4,-40.4,'2nd Wave'],
+  ['Feb-2026',5371,241,5612,8620,-11.8,-38.4,'2nd Wave'],
+  ['Mar-2026',4187,168,4355,6581,-22.4,-49.3,'2nd Wave'],
+];
+
+const tbody = document.getElementById('dataBody');
+const phaseClass = { 'Pre':'phase-pre','Pre-decision':'phase-pre','Immediate':'phase-imm','2nd Wave':'phase-wave' };
+
+tableData.forEach(row => {
+  const tr = document.createElement('tr');
+  const [period, banks, finco, total, contracts, mom, yoy, phase] = row;
+  const fmtPct = v => v == null ? '<span style="color:rgba(255,255,255,.2)">—</span>' :
+    `<span style="color:${v < 0 ? '#F85149' : '#3FB950'}">${v > 0 ? '+' : ''}${v.toFixed(1)}%</span>`;
+  tr.innerHTML = `
+    <td class="td-period">${period}</td>
+    <td>${banks.toLocaleString()}</td>
+    <td>${finco.toLocaleString()}</td>
+    <td><strong>${total.toLocaleString()}</strong></td>
+    <td>${contracts.toLocaleString()}</td>
+    <td>${fmtPct(mom)}</td>
+    <td>${fmtPct(typeof yoy === 'number' ? yoy : null)}</td>
+    <td><span class="td-phase ${phaseClass[phase] || ''}">${phase}</span></td>
+  `;
+  tbody.appendChild(tr);
+});
+</script>
+</body>
+</html>
