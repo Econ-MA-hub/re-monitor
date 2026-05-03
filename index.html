@@ -146,8 +146,8 @@ header {
 /* ── LEGEND ── */
 .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 10px; }
 .leg-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: rgba(255,255,255,.5); }
-.leg-dot  { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
-.leg-line { width: 18px; height: 2px; flex-shrink: 0; }
+.leg-dot  { display: inline-block; width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; min-width: 10px; }
+.leg-line { display: inline-block; width: 18px; height: 2px; flex-shrink: 0; min-width: 18px; }
 
 /* ── INSIGHT CARDS ── */
 .insight-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin-top: 1rem; }
@@ -492,7 +492,7 @@ footer {
     <div class="chart-card-sub">Q1-2019 to Q4-2024 · REGA · Riyadh city</div>
     <div class="legend">
       <span class="leg-item"><span class="leg-dot" style="background:#3A8FA8"></span>Avg annual rent (SAR)</span>
-      <span class="leg-item"><span class="leg-dot" style="background:rgba(192,57,43,.5)"></span>Transaction volume →</span>
+      <span class="leg-item"><span class="leg-dot" style="background:rgba(192,57,43,.5)"></span>Lease contracts →</span>
     </div>
     <div class="chart-wrap" style="height:250px">
       <canvas id="cRent" role="img" aria-label="Riyadh apartment rent rising from 19646 SAR in Q1-2019 to 28324 SAR in Q4-2024 with transaction volume rising from 21534 to 176769">Riyadh apartment rent rose 44% from 2019 to Q4-2024, with transactions up 721%.</canvas>
@@ -622,8 +622,8 @@ footer {
 </main>
 
 <footer>
-  <span>Source: SAMA Statistical Bulletin Mar-2026 (Tables 12f + 2-7) · REGA Monthly Bulletins · GASTAT CCI Mar-2026 · MoMRA Building Permits</span>
-  <span>Saudi Real Estate Intelligence · 32 cross-checks verified ✓</span>
+  <span>Sources: SAMA · REGA · GASTAT &nbsp;|&nbsp; Last update: April 2026</span>
+  <span>Economic Data Unit</span>
 </footer>
 
 <script>
