@@ -237,7 +237,7 @@ footer {
   height: 520px;
   width: 100%;
   border-radius: 10px;
-  border: 1px solid rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.18);
   background: #0a1622;
   z-index: 1;
 }
@@ -1180,7 +1180,7 @@ function initZonesTab() {
 
     // regions background
     Z.regionsLayer = L.geoJSON(regions, {
-      style: { color: 'rgba(255,255,255,0.25)', weight: 1, fill: false, dashArray: '3,3' },
+      style: { color: 'rgba(232,160,32,0.55)', weight: 1.5, fill: false, dashArray: '5,4' },
       interactive: false
     }).addTo(Z.map);
 
@@ -1275,8 +1275,8 @@ function drawZoneLayer() {
   Z.zonesLayer = L.geoJSON({ type: 'FeatureCollection', features: Z.filtered }, {
     style: f => ({
       color: zoneColor(f.properties),
-      weight: 1.2, fillColor: zoneColor(f.properties),
-      fillOpacity: 0.55, opacity: 1
+      weight: 1.8, fillColor: zoneColor(f.properties),
+      fillOpacity: 0.5, opacity: 1
     }),
     onEachFeature: (f, layer) => {
       layer.on('click', () => selectZone(f.properties.id, false));
