@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Saudi Real Estate Intelligence</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <style>
 :root {
   --navy:  #0D1F2D;
@@ -191,6 +193,136 @@ footer {
   justify-content: space-between;
   align-items: center;
 }
+
+/* ══════════ FOREIGN OWNERSHIP ZONES TAB ══════════ */
+#page-zones { direction: rtl; font-family: 'Cairo', sans-serif; }
+#page-zones .section-title, #page-zones .kpi-label, #page-zones .kpi-val,
+#page-zones .chart-card-title, #page-zones .chart-card-sub,
+#page-zones button, #page-zones select, #page-zones input,
+#page-zones th, #page-zones td, #page-zones .z-legend { font-family: 'Cairo', sans-serif; }
+
+.z-filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 10px;
+  margin-bottom: 1rem;
+  align-items: end;
+}
+.z-field { display: flex; flex-direction: column; gap: 5px; }
+.z-field label { font-size: 11px; color: rgba(255,255,255,.5); }
+.z-field select, .z-field input {
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 7px;
+  padding: 8px 10px;
+  color: var(--white);
+  font-size: 12px;
+  outline: none;
+}
+.z-field select option { background: var(--teal); color: var(--white); }
+.z-toggle {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 7px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 12px;
+  color: rgba(255,255,255,.8);
+  white-space: nowrap;
+}
+.z-toggle input { accent-color: var(--accent); width: 15px; height: 15px; }
+
+#zmap {
+  height: 520px;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: #0a1622;
+  z-index: 1;
+}
+.leaflet-popup-content-wrapper {
+  background: var(--teal);
+  color: var(--white);
+  border-radius: 8px;
+  font-family: 'Cairo', sans-serif;
+  direction: rtl;
+}
+.leaflet-popup-tip { background: var(--teal); }
+.leaflet-popup-content { margin: 12px 14px; font-size: 12.5px; line-height: 1.7; }
+.zpop-title { font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+.zpop-row { display: flex; justify-content: space-between; gap: 16px; }
+.zpop-row span:first-child { color: rgba(255,255,255,.55); }
+.zpop-note {
+  margin-top: 8px; padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,.15);
+  font-size: 11.5px; color: rgba(255,255,255,.75);
+}
+.zpop-badge {
+  display: inline-block; margin-top: 6px;
+  font-size: 10.5px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+}
+.zbadge-all { background: rgba(63,185,80,.2); color: #3FB950; }
+.zbadge-muslim { background: rgba(232,160,32,.2); color: var(--accent); }
+
+.z-legend {
+  display: flex; gap: 18px; flex-wrap: wrap;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 1rem;
+  font-size: 12px;
+}
+.z-legend-item { display: flex; align-items: center; gap: 7px; color: rgba(255,255,255,.75); }
+.z-legend-sw { width: 16px; height: 16px; border-radius: 4px; flex-shrink: 0; }
+
+.z-table-wrap { overflow-x: auto; max-height: 420px; overflow-y: auto; }
+table.z-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+table.z-table thead th {
+  position: sticky; top: 0;
+  background: var(--teal);
+  color: rgba(255,255,255,.7);
+  font-weight: 600; font-size: 11px;
+  padding: 9px 12px; text-align: right;
+  cursor: pointer; user-select: none;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  white-space: nowrap;
+}
+table.z-table thead th:hover { color: var(--accent); }
+table.z-table td {
+  padding: 8px 12px; text-align: right;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  color: rgba(255,255,255,.8);
+}
+table.z-table tbody tr { cursor: pointer; }
+table.z-table tbody tr:hover td { background: rgba(232,160,32,.08); }
+table.z-table tbody tr.z-selected td { background: rgba(232,160,32,.15); }
+.z-elig-all { color: #3FB950; font-weight: 600; }
+.z-elig-muslim { color: var(--accent); font-weight: 600; }
+
+.z-btn {
+  background: var(--accent); color: var(--navy);
+  border: none; border-radius: 7px;
+  padding: 8px 16px; font-size: 12px; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+}
+.z-btn:hover { opacity: .9; }
+.z-disclaimer {
+  margin-top: 1rem; padding: 12px 16px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 8px;
+  font-size: 11.5px; color: rgba(255,255,255,.5);
+  line-height: 1.6;
+}
+.z-loading {
+  display: flex; align-items: center; justify-content: center;
+  height: 520px; color: rgba(255,255,255,.4); font-size: 14px;
+  font-family: 'Cairo', sans-serif;
+}
+.z-source { font-size: 11px; color: rgba(255,255,255,.4); margin-top: 4px; }
+.z-source a { color: var(--accent); text-decoration: none; }
 </style>
 
 <style>
@@ -218,6 +350,9 @@ footer {
   .data-table th { font-size: 9px !important; padding: 5px 6px !important; }
   .data-table td { padding: 5px 6px !important; font-size: 9px !important; }
   footer { flex-direction: column !important; gap: 4px !important; text-align: center !important; padding: .75rem !important; font-size: 10px !important; }
+  .z-filters { grid-template-columns: 1fr 1fr !important; }
+  #zmap { height: 380px !important; }
+  .z-legend { flex-direction: column !important; gap: 8px !important; }
 }
 </style>
 </head>
@@ -229,7 +364,7 @@ footer {
     <span class="logo-text">Saudi Real Estate Intelligence</span>
   </div>
   <div class="header-right">
-    <span class="badge">Mar-2026</span>
+    <span class="badge">Apr-2026</span>
     <span class="last-update">Source: SAMA · REGA · GASTAT</span>
   </div>
 </header>
@@ -241,6 +376,7 @@ footer {
   <button class="nav-tab" onclick="showPage('rental')">Rental Market</button>
   <button class="nav-tab" onclick="showPage('construction')">Construction Costs</button>
   <button class="nav-tab" onclick="showPage('data')">Data Table</button>
+  <button class="nav-tab" onclick="showPage('zones')">نطاقات تمّلك الأجانب</button>
 </nav>
 
 <main class="main">
@@ -252,24 +388,24 @@ footer {
 
   <div class="kpi-row" style="margin-top:.5rem">
     <div class="kpi-card">
-      <div class="kpi-label">Financing — Mar 2026</div>
-      <div class="kpi-val red">SAR 4.35Bn</div>
-      <div class="kpi-sub red-sub">−49.3% YoY</div>
+      <div class="kpi-label">Financing — Apr 2026</div>
+      <div class="kpi-val amber">SAR 6.59Bn</div>
+      <div class="kpi-sub amber-sub">Banks+FinCo · +1.2% YoY · Banks 6.33Bn</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">YoY Decline Streak</div>
-      <div class="kpi-val red">9 months</div>
-      <div class="kpi-sub red-sub">Jul-2025 → Mar-2026</div>
+      <div class="kpi-label">MoM Rebound (Apr)</div>
+      <div class="kpi-val green">+51%</div>
+      <div class="kpi-sub green-sub">from Mar trough SAR 4.35Bn</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">vs Dec-2024 Peak</div>
-      <div class="kpi-val red">−64.2%</div>
-      <div class="kpi-sub red-sub">SAR 7.82Bn absolute drop</div>
+      <div class="kpi-val red">−45.9%</div>
+      <div class="kpi-sub red-sub">still well below peak</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">REGA Transactions Mar-26</div>
-      <div class="kpi-val red">15,722</div>
-      <div class="kpi-sub red-sub">−52% YoY vs Mar-2025</div>
+      <div class="kpi-label">Contracts — Apr 2026</div>
+      <div class="kpi-val amber">9,860</div>
+      <div class="kpi-sub amber-sub">+17% YoY vs Apr-2025</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Building Permits Dec-25</div>
@@ -297,14 +433,14 @@ footer {
       <span class="leg-item"><span class="leg-line" style="background:#E8A020"></span>YoY % →</span>
     </div>
     <div class="chart-wrap" style="height:260px">
-      <canvas id="cOverview" role="img" aria-label="Monthly mortgage financing 2024-2026">Monthly financing peaked at 12,176 SAR Mn in Dec-2024, declining to 4,355 by Mar-2026, a 64% drop.</canvas>
+      <canvas id="cOverview" role="img" aria-label="Monthly mortgage financing 2024-2026">Monthly financing peaked at 12,176 SAR Mn in Dec-2024, fell to a trough of 4,355 in Mar-2026, then rebounded to 6,591 in Apr-2026.</canvas>
     </div>
   </div>
 
   <div class="insight-row">
-    <div class="insight-card red">
-      <div class="insight-title">Credit-led structural contraction</div>
-      <div class="insight-body">9 consecutive months of YoY decline confirms a structural credit constraint, not a seasonal correction. No month since Jul-2025 has shown sustained MoM recovery.</div>
+    <div class="insight-card amber">
+      <div class="insight-title">April: first uptick after 9-month decline</div>
+      <div class="insight-body">After 9 straight YoY declines (Jul-2025→Mar-2026), April returned to +1.2% YoY and +51% MoM. But the YoY base is weak (Apr-2025 was already depressed) and one month does not confirm a reversal — watch May–June.</div>
     </div>
     <div class="insight-card amber">
       <div class="insight-title">Policy mismatch: supply vs credit</div>
@@ -330,29 +466,29 @@ footer {
       <div class="kpi-sub amber-sub">All-time high</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Latest (Mar-2026)</div>
-      <div class="kpi-val red">SAR 4.35Bn</div>
-      <div class="kpi-sub red-sub">−64.2% from peak</div>
+      <div class="kpi-label">Grand Total (Apr-2026)</div>
+      <div class="kpi-val amber">SAR 6.59Bn</div>
+      <div class="kpi-sub amber-sub">Banks + FinCo · +1.2% YoY</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Banks — Mar-2026</div>
-      <div class="kpi-val red">SAR 4.19Bn</div>
-      <div class="kpi-sub red-sub">−50.1% YoY</div>
+      <div class="kpi-label">Banks only — Apr-2026</div>
+      <div class="kpi-val amber">SAR 6.33Bn</div>
+      <div class="kpi-sub amber-sub">+0.5% YoY · 96% of total</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">FinCo — Mar-2026</div>
-      <div class="kpi-val amber">SAR 168Mn</div>
-      <div class="kpi-sub amber-sub">Share: 3.8% (was 1.9%)</div>
+      <div class="kpi-label">FinCo — Apr-2026</div>
+      <div class="kpi-val amber">SAR 265Mn</div>
+      <div class="kpi-sub amber-sub">Share: 4.0%</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Contracts — Mar-2026</div>
-      <div class="kpi-val red">6,581</div>
-      <div class="kpi-sub red-sub">−42.4% YoY</div>
+      <div class="kpi-label">Contracts — Apr-2026</div>
+      <div class="kpi-val amber">9,860</div>
+      <div class="kpi-sub amber-sub">+17.0% YoY</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Absolute Drop</div>
-      <div class="kpi-val red">SAR 7.82Bn</div>
-      <div class="kpi-sub red-sub">in 15 months</div>
+      <div class="kpi-label">MoM Change (Apr)</div>
+      <div class="kpi-val green">+51%</div>
+      <div class="kpi-sub green-sub">rebound from Mar trough</div>
     </div>
   </div>
 
@@ -368,15 +504,15 @@ footer {
 
   <div class="section-hdr">
     <span class="section-title">Peak vs Latest — Product Breakdown</span>
-    <span class="section-sub">Banks only · Dec-2024 vs Mar-2026</span>
+    <span class="section-sub">Banks only · Dec-2024 vs Apr-2026</span>
   </div>
   <div class="chart-card">
     <div class="legend">
       <span class="leg-item"><span class="leg-dot" style="background:#3A8FA8"></span>Dec-2024 (peak)</span>
-      <span class="leg-item"><span class="leg-dot" style="background:#C0392B"></span>Mar-2026 (latest)</span>
+      <span class="leg-item"><span class="leg-dot" style="background:#C0392B"></span>Apr-2026 (latest)</span>
     </div>
     <div class="chart-wrap" style="height:220px">
-      <canvas id="cPeak" role="img" aria-label="Product comparison peak vs latest: villas -67.8%, apartments -62.9%, land -16.4%">Peak vs latest: Villas -67.8%, Apartments -62.9%, Land -16.4%.</canvas>
+      <canvas id="cPeak" role="img" aria-label="Product comparison peak vs latest: villas -48.4%, apartments -48.9%, land +6.3%">Peak vs latest (Dec-2024 vs Apr-2026): Villas -48.4%, Apartments -48.9%, Land +6.3%.</canvas>
     </div>
   </div>
 
@@ -619,10 +755,100 @@ footer {
 
 </div>
 
+<!-- ══════════════════════════════════════════════════════
+     PAGE: FOREIGN OWNERSHIP ZONES
+════════════════════════════════════════════════════════ -->
+<div id="page-zones" class="page">
+
+  <div class="kpi-row" style="margin-top:.5rem">
+    <div class="kpi-card">
+      <div class="kpi-label">إجمالي النطاقات المعتمدة</div>
+      <div class="kpi-val white-val" id="zkpi-total">—</div>
+      <div class="kpi-sub amber-sub">نطاق جغرافي فرعي</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">عدد المناطق الإدارية</div>
+      <div class="kpi-val white-val" id="zkpi-regions">—</div>
+      <div class="kpi-sub amber-sub">منطقة</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">نطاقات مقيّدة لغير المسلمين</div>
+      <div class="kpi-val amber" id="zkpi-restricted">—</div>
+      <div class="kpi-sub amber-sub">مكة المكرمة + المدينة المنورة</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">إجمالي المساحة</div>
+      <div class="kpi-val white-val" id="zkpi-area">—</div>
+      <div class="kpi-sub amber-sub">كم²</div>
+    </div>
+  </div>
+
+  <div class="z-legend">
+    <div class="z-legend-item"><span class="z-legend-sw" style="background:#2E9E5B"></span>متاح لتمّلك الأجانب (جميع الديانات)</div>
+    <div class="z-legend-item"><span class="z-legend-sw" style="background:#E8A020"></span>متاح لتمّلك الأجانب — للمسلمين فقط (المادة الثانية)</div>
+    <div class="z-legend-item"><span class="z-legend-sw" style="background:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.4)"></span>حدود المناطق الإدارية</div>
+  </div>
+
+  <div class="z-filters">
+    <div class="z-field">
+      <label>المنطقة الإدارية</label>
+      <select id="zf-region"><option value="">كل المناطق</option></select>
+    </div>
+    <div class="z-field">
+      <label>النطاق الرئيسي</label>
+      <select id="zf-mainzone"><option value="">كل النطاقات الرئيسية</option></select>
+    </div>
+    <div class="z-field">
+      <label>بحث بالاسم أو الكود</label>
+      <input type="text" id="zf-search" placeholder="اكتب اسم النطاق أو الكود…" />
+    </div>
+    <label class="z-toggle">
+      <input type="checkbox" id="zf-restricted" />
+      المقيّدة لغير المسلمين فقط
+    </label>
+  </div>
+
+  <div class="chart-card" style="padding:0;overflow:hidden">
+    <div id="zmap-container">
+      <div class="z-loading" id="zmap-loading">جارٍ تحميل الخريطة والبيانات…</div>
+      <div id="zmap" style="display:none"></div>
+    </div>
+  </div>
+
+  <div class="section-hdr" style="margin-top:1.5rem">
+    <span class="section-title">جدول النطاقات</span>
+    <span class="section-sub" id="ztable-count">—</span>
+  </div>
+  <div class="chart-card">
+    <div style="display:flex;justify-content:flex-start;margin-bottom:10px">
+      <button class="z-btn" id="z-export">تصدير CSV للنتائج المفلترة</button>
+    </div>
+    <div class="z-table-wrap">
+      <table class="z-table" id="ztable">
+        <thead>
+          <tr>
+            <th data-sort="nameAr">الاسم</th>
+            <th data-sort="zoneCode">الكود</th>
+            <th data-sort="regionAr">المنطقة</th>
+            <th data-sort="mainZoneAr">النطاق الرئيسي</th>
+            <th data-sort="areaKm2">المساحة (كم²)</th>
+            <th data-sort="elig">حالة الأهلية</th>
+          </tr>
+        </thead>
+        <tbody id="ztable-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="z-disclaimer" id="z-disclaimer">—</div>
+  <div class="z-source">المصدر: <a href="https://properties.saudi.rega.gov.sa" target="_blank" rel="noopener">الهيئة العامة للعقار (REGA)</a></div>
+
+</div>
+
 </main>
 
 <footer>
-  <span>Sources: SAMA · REGA · GASTAT &nbsp;|&nbsp; Last update: April 2026</span>
+  <span>Sources: SAMA · REGA · GASTAT &nbsp;|&nbsp; Last update: May 2026</span>
   <span>Economic Data Unit</span>
 </footer>
 
@@ -633,6 +859,7 @@ function showPage(name) {
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   event.target.classList.add('active');
+  if (name === 'zones') initZonesTab();
 }
 
 // ── Chart defaults ─────────────────────────────────────
@@ -651,27 +878,27 @@ const baseOpts = {
 // ── DATA ───────────────────────────────────────────────
 const finMonths = ['Jul-24','Aug-24','Sep-24','Oct-24','Nov-24','Dec-24',
   'Jan-25','Feb-25','Mar-25','Jul-25','Aug-25','Sep-25',
-  'Oct-25','Nov-25','Dec-25','Jan-26','Feb-26','Mar-26'];
+  'Oct-25','Nov-25','Dec-25','Jan-26','Feb-26','Mar-26','Apr-26'];
 const finBanks = [7072,6599,6820,8142,10064,11941,10464,8908,8399,
-  6416,5860,5820,5548,4465,5548,6189,5371,4187];
+  6416,5860,5820,5548,4465,5548,6189,5371,4187,6326];
 const finFinCo = [193,161,202,254,201,235,224,198,197,
-  185,167,206,217,301,219,176,241,168];
+  185,167,206,217,301,219,176,241,168,265];
 const finVals  = finBanks.map((b,i) => b + finFinCo[i]);
 const finContr = [9832,9312,9560,11318,13374,15556,13691,11951,11345,
-  8790,8185,8226,8300,7058,7873,9227,8620,6581];
+  8790,8185,8226,8300,7058,7873,9227,8620,6581,9860];
 const finYoY   = [null,null,null,null,null,null,null,null,null,
-  -9.1,-10.8,-14.2,-31.3,-53.6,-52.6,-40.4,-38.4,-49.3];
+  -9.1,-10.8,-14.2,-31.3,-53.6,-52.6,-40.4,-38.4,-49.3,1.2];
 const finMoM   = [null,-6.9,3.9,19.6,22.2,18.6,-12.2,-14.8,-5.5,
-  null,-8.7,-0.0,-4.3,-17.3,21.0,10.4,-11.8,-22.4];
+  null,-8.7,-0.0,-4.3,-17.3,21.0,10.4,-11.8,-22.4,51.3];
 const finPhase = ['Pre','Pre','Pre','Pre','Pre','Pre','Pre','Pre','Pre',
   'Pre-decision','Pre-decision','Pre-decision',
   'Immediate','Immediate','Immediate',
-  '2nd Wave','2nd Wave','2nd Wave'];
+  '2nd Wave','2nd Wave','2nd Wave','2nd Wave'];
 const finColors= ['#2B6A7C','#2B6A7C','#2B6A7C','#2B6A7C','#2B6A7C','#2B6A7C',
   '#3A8FA8','#3A8FA8','#3A8FA8',
   '#B5870B','#B5870B','#B5870B',
   '#993C1D','#993C1D','#993C1D',
-  '#8B1A1A','#8B1A1A','#8B1A1A'];
+  '#8B1A1A','#8B1A1A','#8B1A1A','#8B1A1A'];
 
 // ── CHART: Overview ────────────────────────────────────
 new Chart(document.getElementById('cOverview'), {
@@ -725,7 +952,7 @@ new Chart(document.getElementById('cPeak'), {
     labels: ['Villas','Apartments','Land'],
     datasets: [
       { label: 'Dec-2024 (peak)',   data: [8120,3486,335], backgroundColor: '#3A8FA8' },
-      { label: 'Mar-2026 (latest)', data: [2614,1293,280], backgroundColor: '#C0392B' }
+      { label: 'Apr-2026 (latest)', data: [4190,1780,356], backgroundColor: '#C0392B' }
     ]
   },
   options: {
@@ -872,10 +1099,11 @@ const tableData = [
   ['Jan-2026',6189,176,6365,9227,10.4,-40.4,'2nd Wave'],
   ['Feb-2026',5371,241,5612,8620,-11.8,-38.4,'2nd Wave'],
   ['Mar-2026',4187,168,4355,6581,-22.4,-49.3,'2nd Wave'],
+  ['Apr-2026',6326,265,6591,9860,51.3,1.2,'Rebound?'],
 ];
 
 const tbody = document.getElementById('dataBody');
-const phaseClass = { 'Pre':'phase-pre','Pre-decision':'phase-pre','Immediate':'phase-imm','2nd Wave':'phase-wave' };
+const phaseClass = { 'Pre':'phase-pre','Pre-decision':'phase-pre','Immediate':'phase-imm','2nd Wave':'phase-wave','Rebound?':'phase-pre' };
 
 tableData.forEach(row => {
   const tr = document.createElement('tr');
@@ -894,6 +1122,283 @@ tableData.forEach(row => {
   `;
   tbody.appendChild(tr);
 });
+
+// ══════════════════════════════════════════════════════
+//  FOREIGN OWNERSHIP ZONES — module (Leaflet, vanilla)
+// ══════════════════════════════════════════════════════
+const COLOR_ALL = '#2E9E5B';      // green — all faiths
+const COLOR_MUSLIM = '#E8A020';   // amber — Muslims only
+
+// ── useZonesData(): lazy-load GeoJSON + meta once ──
+const useZonesData = (() => {
+  let cache = null;
+  let loading = null;
+  return function () {
+    if (cache) return Promise.resolve(cache);
+    if (loading) return loading;
+    loading = Promise.all([
+      fetch('data/foreign_ownership_zones.geojson').then(r => r.json()),
+      fetch('data/regions_min.geojson').then(r => r.json()),
+      fetch('data/meta.json').then(r => r.json())
+    ]).then(([zones, regions, meta]) => {
+      cache = { zones, regions, meta };
+      return cache;
+    });
+    return loading;
+  };
+})();
+
+// ── Tab state ──
+const Z = {
+  map: null, zonesLayer: null, regionsLayer: null,
+  all: [], filtered: [], byId: {}, meta: null,
+  sortKey: 'areaKm2', sortDir: -1, selectedId: null, started: false
+};
+
+function eligLabel(p) { return p.nonMuslimRestricted ? 'للمسلمين فقط' : 'جميع الديانات'; }
+function eligClass(p) { return p.nonMuslimRestricted ? 'z-elig-muslim' : 'z-elig-all'; }
+function zoneColor(p) { return p.nonMuslimRestricted ? COLOR_MUSLIM : COLOR_ALL; }
+
+function initZonesTab() {
+  if (Z.started) { setTimeout(() => Z.map && Z.map.invalidateSize(), 100); return; }
+  Z.started = true;
+  useZonesData().then(({ zones, regions, meta }) => {
+    Z.meta = meta;
+    Z.all = zones.features.slice();
+    Z.all.forEach(f => { Z.byId[f.properties.id] = f; });
+
+    document.getElementById('zmap-loading').style.display = 'none';
+    document.getElementById('zmap').style.display = 'block';
+
+    // ── Build map ──
+    Z.map = L.map('zmap', { preferCanvas: true, zoomControl: true, attributionControl: true })
+      .setView([24.0, 45.0], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18, attribution: '© OpenStreetMap'
+    }).addTo(Z.map);
+
+    // regions background
+    Z.regionsLayer = L.geoJSON(regions, {
+      style: { color: 'rgba(255,255,255,0.4)', weight: 1, fill: false, dashArray: '3,3' },
+      interactive: false
+    }).addTo(Z.map);
+
+    // KPIs (static totals from meta)
+    document.getElementById('zkpi-total').textContent = meta.totalZonesShown.toLocaleString('en');
+    document.getElementById('zkpi-regions').textContent = meta.regions;
+    const restrictedCount = Z.all.filter(f => f.properties.nonMuslimRestricted).length;
+    document.getElementById('zkpi-restricted').textContent = restrictedCount.toLocaleString('en');
+    const totalArea = Z.all.reduce((s, f) => s + (f.properties.areaKm2 || 0), 0);
+    document.getElementById('zkpi-area').textContent = Math.round(totalArea).toLocaleString('en');
+
+    // disclaimer
+    document.getElementById('z-disclaimer').textContent =
+      meta.disclaimer + '  —  ' + (meta.areaNote || '');
+
+    // ── populate region filter — المدينة المنورة first ──
+    const regionCounts = meta.zonesByRegion || {};
+    let regionNames = Object.keys(regionCounts);
+    regionNames.sort((a, b) => regionCounts[b] - regionCounts[a]);
+    regionNames = regionNames.filter(r => r !== 'منطقة المدينة المنورة');
+    regionNames.unshift('منطقة المدينة المنورة');
+    const rSel = document.getElementById('zf-region');
+    regionNames.forEach(r => {
+      const o = document.createElement('option');
+      o.value = r; o.textContent = r + ' (' + (regionCounts[r] || 0) + ')';
+      rSel.appendChild(o);
+    });
+
+    // main zones
+    const mainZones = [...new Set(Z.all.map(f => f.properties.mainZoneAr))].sort();
+    const mSel = document.getElementById('zf-mainzone');
+    mainZones.forEach(m => {
+      const o = document.createElement('option');
+      o.value = m; o.textContent = m;
+      mSel.appendChild(o);
+    });
+
+    // ── wire filters ──
+    rSel.addEventListener('change', applyZoneFilters);
+    mSel.addEventListener('change', applyZoneFilters);
+    document.getElementById('zf-search').addEventListener('input', debounceZ(applyZoneFilters, 250));
+    document.getElementById('zf-restricted').addEventListener('change', applyZoneFilters);
+    document.getElementById('z-export').addEventListener('click', exportZonesCSV);
+
+    // sortable headers
+    document.querySelectorAll('#ztable thead th').forEach(th => {
+      th.addEventListener('click', () => {
+        const k = th.getAttribute('data-sort');
+        if (Z.sortKey === k) Z.sortDir *= -1;
+        else { Z.sortKey = k; Z.sortDir = (k === 'areaKm2') ? -1 : 1; }
+        renderZoneTable();
+      });
+    });
+
+    applyZoneFilters();
+    setTimeout(() => Z.map.invalidateSize(), 80);
+  }).catch(err => {
+    document.getElementById('zmap-loading').textContent = 'تعذّر تحميل البيانات. تأكد من وجود مجلد data بجانب الصفحة.';
+    console.error(err);
+  });
+}
+
+function debounceZ(fn, ms) {
+  let t; return function () { clearTimeout(t); t = setTimeout(fn, ms); };
+}
+
+function applyZoneFilters() {
+  const region = document.getElementById('zf-region').value;
+  const mainzone = document.getElementById('zf-mainzone').value;
+  const search = document.getElementById('zf-search').value.trim().toLowerCase();
+  const onlyRestricted = document.getElementById('zf-restricted').checked;
+
+  Z.filtered = Z.all.filter(f => {
+    const p = f.properties;
+    if (region && p.regionAr !== region) return false;
+    if (mainzone && p.mainZoneAr !== mainzone) return false;
+    if (onlyRestricted && !p.nonMuslimRestricted) return false;
+    if (search) {
+      const hay = (p.nameAr + ' ' + (p.nameEn || '') + ' ' + p.zoneCode).toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
+    return true;
+  });
+
+  drawZoneLayer();
+  renderZoneTable();
+  updateZoneStats();
+}
+
+function drawZoneLayer() {
+  if (Z.zonesLayer) { Z.map.removeLayer(Z.zonesLayer); Z.zonesLayer = null; }
+  Z.zonesLayer = L.geoJSON({ type: 'FeatureCollection', features: Z.filtered }, {
+    style: f => ({
+      color: zoneColor(f.properties),
+      weight: 1, fillColor: zoneColor(f.properties),
+      fillOpacity: 0.45, opacity: 0.9
+    }),
+    onEachFeature: (f, layer) => {
+      layer.on('click', () => selectZone(f.properties.id, false));
+      layer.bindPopup(zonePopupHTML(f.properties), { maxWidth: 280 });
+    }
+  }).addTo(Z.map);
+
+  // auto fit/zoom
+  if (Z.filtered.length) {
+    try {
+      const b = Z.zonesLayer.getBounds();
+      if (b.isValid()) Z.map.fitBounds(b, { padding: [30, 30], maxZoom: 11 });
+    } catch (e) {}
+  }
+}
+
+function zonePopupHTML(p) {
+  const badge = p.nonMuslimRestricted
+    ? '<span class="zpop-badge zbadge-muslim">للمسلمين فقط</span>'
+    : '<span class="zpop-badge zbadge-all">جميع الديانات</span>';
+  return `
+    <div class="zpop-title">${p.nameAr}${p.nameEn ? ' · ' + p.nameEn : ''}</div>
+    <div class="zpop-row"><span>الكود</span><span>${p.zoneCode}</span></div>
+    <div class="zpop-row"><span>المنطقة</span><span>${p.regionAr}</span></div>
+    <div class="zpop-row"><span>النطاق الرئيسي</span><span>${p.mainZoneAr}</span></div>
+    <div class="zpop-row"><span>المساحة</span><span>${(p.areaKm2 || 0).toLocaleString('en', { maximumFractionDigits: 1 })} كم²</span></div>
+    ${badge}
+    <div class="zpop-note">${p.ownershipNote || ''}</div>
+  `;
+}
+
+function selectZone(id, fromMap) {
+  Z.selectedId = id;
+  const f = Z.byId[id];
+  if (!f) return;
+  // highlight table row
+  document.querySelectorAll('#ztable-body tr').forEach(tr => {
+    tr.classList.toggle('z-selected', tr.getAttribute('data-id') === id);
+  });
+  const selectedRow = document.querySelector(`#ztable-body tr[data-id="${id}"]`);
+  if (selectedRow) selectedRow.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  // open popup on map: find layer, zoom and open
+  if (Z.zonesLayer) {
+    Z.zonesLayer.eachLayer(layer => {
+      if (layer.feature && layer.feature.properties.id === id) {
+        try {
+          const b = layer.getBounds();
+          if (b.isValid()) Z.map.fitBounds(b, { padding: [40, 40], maxZoom: 12 });
+        } catch (e) {}
+        layer.openPopup();
+      }
+    });
+  }
+}
+
+function renderZoneTable() {
+  const tbody = document.getElementById('ztable-body');
+  const rows = Z.filtered.slice().sort((a, a2) => {
+    const pa = a.properties, pb = a2.properties;
+    let va, vb;
+    if (Z.sortKey === 'elig') { va = pa.nonMuslimRestricted ? 1 : 0; vb = pb.nonMuslimRestricted ? 1 : 0; }
+    else if (Z.sortKey === 'areaKm2') { va = pa.areaKm2 || 0; vb = pb.areaKm2 || 0; }
+    else { va = (pa[Z.sortKey] || '').toString(); vb = (pb[Z.sortKey] || '').toString(); return Z.sortDir * va.localeCompare(vb, 'ar'); }
+    return Z.sortDir * (va - vb);
+  });
+
+  tbody.innerHTML = '';
+  const frag = document.createDocumentFragment();
+  rows.forEach(f => {
+    const p = f.properties;
+    const tr = document.createElement('tr');
+    tr.setAttribute('data-id', p.id);
+    if (p.id === Z.selectedId) tr.classList.add('z-selected');
+    tr.innerHTML = `
+      <td>${p.nameAr}</td>
+      <td>${p.zoneCode}</td>
+      <td>${p.regionAr}</td>
+      <td>${p.mainZoneAr}</td>
+      <td>${(p.areaKm2 || 0).toLocaleString('en', { maximumFractionDigits: 1 })}</td>
+      <td class="${eligClass(p)}">${eligLabel(p)}</td>
+    `;
+    tr.addEventListener('click', () => selectZone(p.id, true));
+    frag.appendChild(tr);
+  });
+  tbody.appendChild(frag);
+  document.getElementById('ztable-count').textContent =
+    'عدد النتائج: ' + rows.length.toLocaleString('en') + ' من ' + Z.all.length.toLocaleString('en');
+}
+
+function updateZoneStats() {
+  const f = Z.filtered;
+  const regions = new Set(f.map(x => x.properties.regionAr)).size;
+  const restricted = f.filter(x => x.properties.nonMuslimRestricted).length;
+  const area = f.reduce((s, x) => s + (x.properties.areaKm2 || 0), 0);
+  document.getElementById('zkpi-total').textContent = f.length.toLocaleString('en');
+  document.getElementById('zkpi-regions').textContent = regions;
+  document.getElementById('zkpi-restricted').textContent = restricted.toLocaleString('en');
+  document.getElementById('zkpi-area').textContent = Math.round(area).toLocaleString('en');
+}
+
+function exportZonesCSV() {
+  const headers = ['nameAr', 'nameEn', 'zoneCode', 'regionAr', 'mainZoneAr', 'areaKm2', 'eligibility'];
+  const lines = [headers.join(',')];
+  Z.filtered.forEach(f => {
+    const p = f.properties;
+    const row = [
+      p.nameAr, p.nameEn || '', p.zoneCode, p.regionAr, p.mainZoneAr,
+      (p.areaKm2 || 0).toFixed(2),
+      p.nonMuslimRestricted ? 'Muslims only' : 'All faiths'
+    ].map(v => {
+      const s = String(v).replace(/"/g, '""');
+      return /[",\n]/.test(s) ? `"${s}"` : s;
+    });
+    lines.push(row.join(','));
+  });
+  const csv = '\uFEFF' + lines.join('\n'); // BOM for Arabic in Excel
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'foreign_ownership_zones_filtered.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
 </script>
 </body>
 </html>
