@@ -772,7 +772,7 @@ table.z-table tbody tr.z-selected td { background: rgba(232,160,32,.15); }
       <div class="kpi-sub amber-sub">منطقة</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">نطاقات مقيّدة لغير المسلمين</div>
+      <div class="kpi-label">نطاقات للمسلمين فقط</div>
       <div class="kpi-val amber" id="zkpi-restricted">—</div>
       <div class="kpi-sub amber-sub">مكة المكرمة + المدينة المنورة</div>
     </div>
@@ -804,7 +804,7 @@ table.z-table tbody tr.z-selected td { background: rgba(232,160,32,.15); }
     </div>
     <label class="z-toggle">
       <input type="checkbox" id="zf-restricted" />
-      المقيّدة لغير المسلمين فقط
+      للمسلمين فقط
     </label>
   </div>
 
@@ -1173,13 +1173,14 @@ function initZonesTab() {
     // ── Build map ──
     Z.map = L.map('zmap', { preferCanvas: true, zoomControl: true, attributionControl: true })
       .setView([24.0, 45.0], 5);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 18, attribution: '© OpenStreetMap'
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19, subdomains: 'abcd',
+      attribution: '© OpenStreetMap © CARTO'
     }).addTo(Z.map);
 
     // regions background
     Z.regionsLayer = L.geoJSON(regions, {
-      style: { color: 'rgba(255,255,255,0.4)', weight: 1, fill: false, dashArray: '3,3' },
+      style: { color: 'rgba(255,255,255,0.25)', weight: 1, fill: false, dashArray: '3,3' },
       interactive: false
     }).addTo(Z.map);
 
@@ -1274,8 +1275,8 @@ function drawZoneLayer() {
   Z.zonesLayer = L.geoJSON({ type: 'FeatureCollection', features: Z.filtered }, {
     style: f => ({
       color: zoneColor(f.properties),
-      weight: 1, fillColor: zoneColor(f.properties),
-      fillOpacity: 0.45, opacity: 0.9
+      weight: 1.2, fillColor: zoneColor(f.properties),
+      fillOpacity: 0.55, opacity: 1
     }),
     onEachFeature: (f, layer) => {
       layer.on('click', () => selectZone(f.properties.id, false));
